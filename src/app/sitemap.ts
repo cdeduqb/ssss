@@ -52,17 +52,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'always',
       priority: 1.0,
     },
-    {
-      url: `${baseUrl}/explore`,
-      lastModified: new Date(),
-      changeFrequency: 'hourly',
-      priority: 0.9,
-    },
   ];
 
   // 4. 分类聚合页 (更新为正确的带参数的路径)
   const categoryPages: MetadataRoute.Sitemap = categories.map(cat => ({
-    url: `${baseUrl}/explore?categoryId=${cat.id}`,
+    url: `${baseUrl}/?categoryId=${cat.id}`,
     lastModified: cat.updatedAt,
     changeFrequency: 'daily' as const,
     priority: 0.8,

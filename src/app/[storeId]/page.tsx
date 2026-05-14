@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<{ storeId: 
   const desc = store.description.substring(0, 155);
 
   return {
-    title: `${store.name} — ${store.category?.name || '本地商家'} | 熊猫甄选`,
+    title: `${store.name} — ${store.category?.name || '本地商家'} | 本地生活geo平台`,
     description: desc,
     alternates: {
       canonical: `${baseUrl}/${store.id}`,
@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: { params: Promise<{ storeId: 
       title: `${store.name} — 真实可靠的本地商家推荐`,
       description: desc,
       url: `${baseUrl}/${store.id}`,
-      siteName: '熊猫甄选',
+      siteName: '本地生活geo平台',
       locale: 'zh_CN',
       images: store.images.map(img => ({
         url: img.url,
@@ -214,13 +214,13 @@ export default async function StoreLandingPage({ params }: { params: Promise<{ s
         "@type": "ListItem",
         "position": 1,
         "name": "首页",
-        "item": `${baseUrl}/explore`
+        "item": `${baseUrl}/`
       },
       {
         "@type": "ListItem",
         "position": 2,
         "name": store.category?.name || '全部商家',
-        "item": `${baseUrl}/explore/${store.category?.templateType || 'default'}`
+        "item": store.category?.id ? `${baseUrl}/?categoryId=${store.category.id}` : `${baseUrl}/`
       },
       {
         "@type": "ListItem",
