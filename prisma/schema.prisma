@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Category {
+  id           Int      @id @default(autoincrement())
+  name         String
+  sortOrder    Int      @default(0)
+  templateType String   @default("default") // default, hotel, restaurant, attraction
+  parentId     Int?
+  parent       Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
+  children     Category[] @relation("CategoryToCategory")
+  stores       Store[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Store {
+  id                    Int      @id @default(autoincrement())
+  name                  String
+  description           String   @db.Text
+  address               String
+  latitude              Float?
+  longitude             Float?
+  hours                 String
+  phone                 String
+  avgConsumption        Float?
+  holidayAvgConsumption Float?
+  facilities            String?  @db.Text // JSON array of facility tags
+  isActive              Boolean  @default(true)
+  status                String   @default("APPROVED") // PENDING, APPROVED, REJECTED
+  submitterIp           String?
+  rejectReason          String?  @db.Text
+  visitCount            Int      @default(0)
+  categoryId            Int
+  category              Category @relation(fields: [categoryId], references: [id])
+  images                StoreImage[]
+  links                 PlatformLink[]
+  pushLogs              PushLog[]
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([categoryId])
+}
+
+model StoreImage {
+  id        Int      @id @default(autoincrement())
+  storeId   Int
+  url       String
+  isCover   Boolean  @default(false)
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([storeId])
+}
+
+model PlatformLink {
+  id           Int      @id @default(autoincrement())
+  storeId      Int
+  platformType String   // e.g., 'MEITUAN', 'DOUYIN', 'AMAP', 'FLIGGY'
+  url          String
+  isActive     Boolean  @default(true)
+  store        Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([storeId])
+}
+
+model SystemSetting {
+  key   String @id
+  value String @db.Text
+  updatedAt DateTime @updatedAt
+}
+
+// -----------------------------------------------------------------------------
+// GEO 优化专属模型 (AI 爬虫监控 & API 主动推送)
+// -----------------------------------------------------------------------------
+
+model CrawlerLog {
+  id        Int      @id @default(autoincrement())
+  botName   String   // 识别出的爬虫名称 (如 "Bytespider", "Baiduspider")
+  url       String   // 抓取的具体路径 (如 "/1", "/explore")
+  userAgent String   @db.Text // 完整的 UA 字符串
+  ip        String?  // 访问者 IP
+  createdAt DateTime @default(now())
+
+  @@index([botName])
+  @@index([createdAt])
+}
+
+model PushLog {
+  id        Int      @id @default(autoincrement())
+  storeId   Int?     // 关联的店铺
+  store     Store?   @relation(fields: [storeId], references: [id], onDelete: SetNull)
+  platform  String   // 推送目标 (如 "Baidu", "Toutiao", "IndexNow")
+  status    String   // "SUCCESS" 或 "FAILED"
+  response  String?  @db.Text // 接口返回的结果详情
+  createdAt DateTime @default(now())
+
+  @@index([platform])
+  @@index([status])
+}
