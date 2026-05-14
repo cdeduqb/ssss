@@ -58,7 +58,6 @@ export default async function Home() {
   }
 
   return (
-  return (
     <main className="min-h-screen bg-[#FAFAFA] text-slate-800 font-sans selection:bg-indigo-500 selection:text-white">
       {/* 结构化数据 (JSON-LD) 帮助百度、360及各大AI大模型（文心、豆包、Kimi）更好地理解页面内容 */}
       <script
